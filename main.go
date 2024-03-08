@@ -19,6 +19,7 @@ func NewPubSub() *PubSub {
 	return ps
 }
 
+// Method to subscribe to a specific topic
 func (ps *PubSub) Subscribe(topic string) <-chan string {
 	ps.mut.Lock()
 	defer ps.mut.Unlock()
@@ -28,6 +29,7 @@ func (ps *PubSub) Subscribe(topic string) <-chan string {
 	return ch
 }
 
+// Method to publish a message to all subscribers of a specific topic.
 func (ps *PubSub) Publish(topic string, msg string) {
 	ps.mut.RLock()
 	defer ps.mut.RUnlock()
@@ -43,6 +45,7 @@ func (ps *PubSub) Publish(topic string, msg string) {
 	}
 }
 
+// Mthod to prevent further publications and signaling subscribers to close their channels.
 func (ps *PubSub) Close() {
 	ps.mut.Lock()
 	defer ps.mut.Unlock()
@@ -114,13 +117,11 @@ func main() {
 		fmt.Println("Subscriber 2 closed")
 	}()
 
-	// Goroutine to handle closing and waiting
 	go func() {
 		// Wait for an interrupt signal or a specified duration
 		<-shutdownContext.Done()
 		fmt.Println("Received signal to shutdown gracefully")
 
-		// Cancel the context to signal other goroutines to stop
 		cancelShutdown()
 
 		wg.Wait()
